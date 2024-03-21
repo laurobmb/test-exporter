@@ -17,7 +17,7 @@ metadata:
 spec:
   containers:
     - name: hitl-exporter-container
-      image: quay.ip/lagomes/test-exporter:v1
+      image: quay.io/lagomes/test-exporter:v1
       env:
       - name: HITL_URL
         value: https://hitl.qa.api.example.com/api/v1/postgres/health-check
