@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: teste-exporter
+  labels:
+    name: development
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hitl-exporter-pod
+  namespace: teste-exporter
+  labels:
+    app: hitl-exporter
+spec:
+  containers:
+    - name: hitl-exporter-container
+      image: quay.ip/lagomes/test-exporter:v1
+      env:
+      - name: HITL_URL
+        value: https://hitl.qa.api.example.com/api/v1/postgres/health-check
+      ports:
+        - name: metrics
+          containerPort: 9000
+          protocol: TCP
+---     
+apiVersion: v1
+kind: Service
+metadata:
+  name: hitl-exporter-service
+  namespace: teste-exporter
+  labels:
+    app: hitl-exporter
+spec:
+  selector:
+    app: hitl-exporter
+  ports:
+    - name: metrics
+      port: 9000
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: kps
+    app: hitl-exporter
+  name: hitl-exporter-monitor
+  namespace: teste-exporter
+spec:
+  endpoints:
+    - port: metrics
+      interval: 15s
+      scrapeTimeout: 10s
+  namespaceSelector:
+    matchNames:
+    - monitoring
+  selector:
+    matchLabels:
+      app: hitl-exporter
